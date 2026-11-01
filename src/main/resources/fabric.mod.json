@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "aotstory",
+  "version": "${version}",
+  "name": "AOT Story",
+  "description": "Сюжет первого сезона «Атаки Титанов»: каждый этап открывается только после диалога с NPC.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["aotstory.AotStory"],
+    "client": ["aotstory.client.AotStoryClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

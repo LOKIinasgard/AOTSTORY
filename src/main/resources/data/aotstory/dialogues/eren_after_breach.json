@@ -1,0 +1,23 @@
+{
+  "npc": "eren",
+  "priority": 10,
+  "requires": ["event_wall_breach"],
+  "done_flag": "eren_talk_done",
+  "start": "shock",
+  "nodes": {
+    "shock": {
+      "speaker": "Эрен",
+      "text": "Ты это видел?! Он выше Стены! Надо что-то делать, нельзя просто стоять!",
+      "choices": [
+        { "text": "Держись рядом со мной.", "next": "end" }
+      ]
+    },
+    "end": {
+      "speaker": "Эрен",
+      "text": "Я не боюсь. Пошли!",
+      "choices": [
+        { "text": "Вперёд" }
+      ]
+    }
+  }
+}

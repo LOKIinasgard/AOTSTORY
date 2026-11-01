@@ -1,0 +1,15 @@
+{
+  "npc": "hannes",
+  "priority": 0,
+  "requires": [],
+  "start": "idle",
+  "nodes": {
+    "idle": {
+      "speaker": "Ханнес",
+      "text": "Береги себя, парень.",
+      "choices": [
+        { "text": "Уйти" }
+      ]
+    }
+  }
+}
