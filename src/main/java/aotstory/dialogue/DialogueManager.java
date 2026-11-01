@@ -82,6 +82,10 @@ public final class DialogueManager {
         SESSIONS.remove(playerId);
     }
 
+    public static void clear() {
+        SESSIONS.clear();
+    }
+
     private static void enter(ServerPlayerEntity player, Session session, String nodeId) {
         session.nodeId = nodeId;
         Dialogue.Node node = session.dialogue.nodes().get(nodeId);

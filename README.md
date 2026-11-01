@@ -10,7 +10,9 @@
 2. ПКМ по Ханнесу -> диалог. После последней кнопки: титул «Год 845», разморозка мира, появляется Эрен.
 3. ПКМ по Эрену -> второй диалог.
 
-Отладка (оператор): `/aotstory flags | set <флаг> | clear <флаг> | reset | npc <id>`.
+Отладка (оператор): `/aotstory flags | set <флаг> | clear <флаг> | reset | start | where | npc <id>`.
+
+Если сюжет в мире уже "начат", но Ханнеса нет: `/aotstory reset`, затем `/aotstory start`. Найти NPC: `/aotstory where`.
 
 ## Как добавлять сюжет
 - Диалог: `src/main/resources/data/aotstory/dialogues/<имя>.json` (`/reload` подхватывает без перезапуска).

@@ -7,7 +7,10 @@ import aotstory.net.ModNetworking;
 import aotstory.npc.ModEntities;
 import aotstory.story.StoryEvents;
 import aotstory.story.StoryManager;
+import aotstory.story.StoryScheduler;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -33,6 +36,13 @@ public class AotStory implements ModInitializer {
         // Первый вход в мир = старт сюжета (ставим NPC и "замораживаем" мир)
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
                 StoryManager.onPlayerJoin(server, handler.getPlayer()));
+        // Планировщик "через N тиков" + очистка при остановке мира
+        ServerTickEvents.END_SERVER_TICK.register(server -> StoryScheduler.tick());
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            StoryScheduler.clear();
+            DialogueManager.clear();
+        });
+
         // Сессия диалога не должна пережить игрока
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
                 DialogueManager.drop(handler.getPlayer().getUuid()));

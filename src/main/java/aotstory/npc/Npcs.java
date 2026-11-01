@@ -29,11 +29,10 @@ public final class Npcs {
         npc.setCustomName(Text.literal(displayName(npcId)));
         npc.setCustomNameVisible(true);
         npc.refreshPositionAndAngles(pos.x, pos.y, pos.z, yaw, 0.0f);
-        world.spawnEntity(npc);
-        return npc;
+        return world.spawnEntity(npc) ? npc : null; // null = не удалось (например, чанк не загружен)
     }
 
-    /** Ставит NPC на поверхность перед игроком (лицом к нему). */
+    /** Ставит NPC на поверхность перед игроком (лицом к нему). Может вернуть null. */
     public static StoryNpcEntity spawnInFront(ServerPlayerEntity player, String npcId, int distance) {
         ServerWorld world = player.getServerWorld();
         Direction facing = player.getHorizontalFacing();

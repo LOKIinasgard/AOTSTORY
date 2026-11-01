@@ -2,6 +2,7 @@ package aotstory.story;
 
 import aotstory.AotStory;
 import aotstory.npc.Npcs;
+import aotstory.npc.StoryNpcEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -10,6 +11,7 @@ import net.minecraft.world.GameRules;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * ЕДИНЫЙ ШЛЮЗ прогресса сюжета.
@@ -63,18 +65,45 @@ public final class StoryManager {
     }
 
     /**
-     * Первый вход в мир = старт сюжета. Игрок появляется, рядом уже стоит стартовый NPC,
-     * а мир "заморожен": нет смены дня/ночи, спавна мобов и погоды — до тех пор, пока не пройден диалог.
+     * Вход игрока в мир. Если сюжет ещё не начат — через пару секунд (когда игрок и чанки
+     * точно загружены) ставим стартового NPC. Флаг "мир начат" ставится ТОЛЬКО после того,
+     * как NPC реально появился; если не вышло — повторяем попытку.
      */
     public static void onPlayerJoin(MinecraftServer server, ServerPlayerEntity player) {
-        StoryState state = state(server);
-        if (state.has(Flags.WORLD_STARTED)) {
-            return; // мир уже начат раньше
+        if (state(server).has(Flags.WORLD_STARTED)) {
+            return;
         }
-        state.add(Flags.WORLD_STARTED); // без событий: это служебный флаг
+        scheduleStart(server, player.getUuid(), 1);
+    }
+
+    private static void scheduleStart(MinecraftServer server, UUID playerId, int attempt) {
+        StoryScheduler.later(attempt == 1 ? 40 : 100, () -> {
+            if (state(server).has(Flags.WORLD_STARTED)) return;
+            ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerId);
+            if (player == null) return; // игрок вышел: попробуем при следующем входе
+            if (!startWorld(server, player) && attempt < 5) {
+                scheduleStart(server, playerId, attempt + 1);
+            }
+        });
+    }
+
+    /**
+     * Старт сюжета: ставим Ханнеса перед игроком и "замораживаем" мир (нет смены дня/ночи,
+     * спавна мобов и погоды) до конца первого диалога. Вызывается и командой /aotstory start.
+     *
+     * @return true, если Ханнес появился
+     */
+    public static boolean startWorld(MinecraftServer server, ServerPlayerEntity player) {
+        StoryNpcEntity hannes = Npcs.spawnInFront(player, "hannes", 3);
+        if (hannes == null) {
+            AotStory.LOGGER.warn("[story] не удалось поставить Ханнеса, повторим позже");
+            return false;
+        }
+        state(server).add(Flags.WORLD_STARTED); // без событий: служебный флаг
         lockWorld(server, true);
-        Npcs.spawnInFront(player, "hannes", 3);
-        player.sendMessage(Text.literal("Подойди к Ханнесу и поговори с ним (ПКМ).").formatted(Formatting.GRAY), false);
+        player.sendMessage(Text.literal("Ханнес ждёт тебя (" + hannes.getBlockPos().toShortString()
+                + "). Подойди и нажми ПКМ.").formatted(Formatting.GRAY), false);
+        return true;
     }
 
     /**
